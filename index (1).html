@@ -1,0 +1,1191 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>C语言探索者 | 从入门到精通</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind 配置 -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#165DFF',
+            secondary: '#FF7D00',
+            dark: '#1D2129',
+            light: '#F2F3F5',
+            code: '#282c34'
+          },
+          fontFamily: {
+            inter: ['Inter', 'sans-serif'],
+            mono: ['Consolas', 'Monaco', 'monospace']
+          },
+        },
+      }
+    }
+  </script>
+  
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .text-shadow {
+        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      }
+      .card-hover {
+        transition: all 0.3s ease;
+      }
+      .card-hover:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      }
+      .animate-float {
+        animation: float 6s ease-in-out infinite;
+      }
+      @keyframes float {
+        0% { transform: translateY(0px); }
+        50% { transform: translateY(-15px); }
+        100% { transform: translateY(0px); }
+      }
+    }
+  </style>
+</head>
+
+<body class="font-inter bg-light text-dark antialiased">
+  <!-- 导航栏 -->
+  <header id="navbar" class="fixed w-full top-0 z-50 transition-all duration-300 bg-white/90 backdrop-blur-sm shadow-sm">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-16">
+        <div class="flex items-center">
+          <a href="#" class="flex items-center">
+            <i class="fa fa-code text-primary text-2xl mr-2"></i>
+            <span class="text-xl font-bold text-primary">C语言探索者</span>
+          </a>
+          <nav class="hidden md:ml-10 md:flex space-x-8">
+            <a href="#home" class="text-dark hover:text-primary px-3 py-2 text-sm font-medium transition-colors">首页</a>
+            <a href="#about" class="text-dark hover:text-primary px-3 py-2 text-sm font-medium transition-colors">关于我</a>
+            <a href="#basics" class="text-dark hover:text-primary px-3 py-2 text-sm font-medium transition-colors">C语言基础</a>
+            <a href="#examples" class="text-dark hover:text-primary px-3 py-2 text-sm font-medium transition-colors">代码示例</a>
+            <a href="#resources" class="text-dark hover:text-primary px-3 py-2 text-sm font-medium transition-colors">学习资源</a>
+          </nav>
+        </div>
+        <div class="hidden md:flex items-center space-x-4">
+          <a href="https://github.com" target="_blank" class="text-dark hover:text-primary transition-colors">
+            <i class="fa fa-github text-xl"></i>
+          </a>
+          <a href="https://twitter.com" target="_blank" class="text-dark hover:text-primary transition-colors">
+            <i class="fa fa-twitter text-xl"></i>
+          </a>
+          <a href="mailto:example@example.com" class="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors">
+            联系我
+          </a>
+        </div>
+        <div class="md:hidden flex items-center">
+          <button id="menu-toggle" class="text-dark hover:text-primary">
+            <i class="fa fa-bars text-xl"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 移动端菜单 -->
+    <div id="mobile-menu" class="hidden md:hidden bg-white shadow-lg absolute w-full">
+      <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+        <a href="#home" class="block px-3 py-2 text-base font-medium text-dark hover:text-primary">首页</a>
+        <a href="#about" class="block px-3 py-2 text-base font-medium text-dark hover:text-primary">关于我</a>
+        <a href="#basics" class="block px-3 py-2 text-base font-medium text-dark hover:text-primary">C语言基础</a>
+        <a href="#examples" class="block px-3 py-2 text-base font-medium text-dark hover:text-primary">代码示例</a>
+        <a href="#resources" class="block px-3 py-2 text-base font-medium text-dark hover:text-primary">学习资源</a>
+      </div>
+      <div class="pt-4 pb-3 border-t border-gray-200">
+        <div class="flex items-center px-5">
+          <div class="flex-shrink-0">
+            <img class="h-10 w-10 rounded-full" src="https://picsum.photos/200/200?random=1" alt="博主头像">
+          </div>
+          <div class="ml-3">
+            <div class="text-base font-medium text-dark">C语言探索者</div>
+            <div class="text-sm font-medium text-gray-500">explorer@c-lang.com</div>
+          </div>
+        </div>
+        <div class="mt-3 px-2 space-y-1">
+          <a href="https://github.com" target="_blank" class="block px-3 py-2 text-base font-medium text-dark hover:text-primary">
+            <i class="fa fa-github mr-2"></i> GitHub
+          </a>
+          <a href="https://twitter.com" target="_blank" class="block px-3 py-2 text-base font-medium text-dark hover:text-primary">
+            <i class="fa fa-twitter mr-2"></i> Twitter
+          </a>
+          <a href="mailto:example@example.com" class="block px-3 py-2 text-base font-medium text-dark hover:text-primary">
+            <i class="fa fa-envelope mr-2"></i> 联系我
+          </a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- 英雄区域 -->
+  <section id="home" class="pt-24 pb-16 md:pt-32 md:pb-24 bg-gradient-to-br from-primary/5 to-light">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col md:flex-row items-center">
+        <div class="md:w-1/2 mb-10 md:mb-0">
+          <h1 class="text-[clamp(2rem,5vw,3.5rem)] font-bold leading-tight text-dark">
+            探索<span class="text-primary">C语言</span>的奇妙世界
+          </h1>
+          <p class="mt-4 text-[clamp(1rem,2vw,1.25rem)] text-gray-600 max-w-xl">
+            从入门到精通，掌握C语言编程的核心概念和实用技巧。无论你是编程新手还是有经验的开发者，这里都有适合你的内容。
+          </p>
+          <div class="mt-8 flex flex-wrap gap-4">
+            <a href="#examples" class="bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-md text-base font-medium transition-all shadow-lg hover:shadow-primary/20">
+              查看代码示例
+            </a>
+            <a href="#basics" class="bg-white hover:bg-gray-50 text-primary border border-primary px-6 py-3 rounded-md text-base font-medium transition-all">
+              学习基础知识
+            </a>
+          </div>
+          <div class="mt-10 flex items-center space-x-6">
+            <div class="flex -space-x-2">
+              <img class="h-10 w-10 rounded-full ring-2 ring-white" src="https://picsum.photos/200/200?random=2" alt="读者头像">
+              <img class="h-10 w-10 rounded-full ring-2 ring-white" src="https://picsum.photos/200/200?random=3" alt="读者头像">
+              <img class="h-10 w-10 rounded-full ring-2 ring-white" src="https://picsum.photos/200/200?random=4" alt="读者头像">
+            </div>
+            <div>
+              <div class="flex items-center">
+                <div class="flex text-yellow-400">
+                  <i class="fa fa-star"></i>
+                  <i class="fa fa-star"></i>
+                  <i class="fa fa-star"></i>
+                  <i class="fa fa-star"></i>
+                  <i class="fa fa-star-half-o"></i>
+                </div>
+                <span class="ml-2 text-sm font-medium text-gray-500">4.8/5</span>
+              </div>
+              <p class="text-sm text-gray-500">来自1000+开发者的好评</p>
+            </div>
+          </div>
+        </div>
+        <div class="md:w-1/2 relative">
+          <div class="relative z-10 bg-white rounded-xl shadow-2xl overflow-hidden animate-float">
+            <img src="https://picsum.photos/800/600?random=5" alt="C语言代码" class="w-full h-auto">
+            <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end">
+              <div class="p-6">
+                <h3 class="text-white text-xl font-bold">C语言编程</h3>
+                <p class="text-white/80 mt-1">强大、高效、灵活的系统编程语言</p>
+              </div>
+            </div>
+          </div>
+          <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-primary/20 rounded-full blur-3xl -z-10"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 关于博主 -->
+  <section id="about" class="py-16 bg-white">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-12">
+        <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold text-dark">关于博主</h2>
+        <div class="w-20 h-1 bg-primary mx-auto mt-4"></div>
+      </div>
+      
+      <div class="max-w-3xl mx-auto bg-white rounded-xl shadow-lg p-8 md:p-10">
+        <div class="flex flex-col md:flex-row items-center gap-8">
+          <div class="md:w-1/3">
+            <img src="https://picsum.photos/400/400?random=6" alt="博主照片" class="w-48 h-48 rounded-full object-cover mx-auto md:mx-0 border-4 border-primary/20">
+          </div>
+          <div class="md:w-2/3">
+            <h3 class="text-2xl font-bold text-dark">你好，我是张明</h3>
+            <p class="text-gray-600 mt-4">
+              我是一名资深C语言开发者和技术作家，拥有10年+的编程经验。我热衷于分享C语言编程的知识和技巧，帮助初学者快速入门，让有经验的开发者更上一层楼。
+            </p>
+            <p class="text-gray-600 mt-4">
+              我曾在多家科技公司担任高级工程师，参与过多个大型C语言项目的开发。现在，我致力于通过这个博客，将我的经验和知识传递给更多的编程爱好者。
+            </p>
+            <div class="mt-6 flex flex-wrap gap-3">
+              <span class="bg-primary/10 text-primary px-3 py-1 rounded-full text-sm">C语言</span>
+              <span class="bg-primary/10 text-primary px-3 py-1 rounded-full text-sm">系统编程</span>
+              <span class="bg-primary/10 text-primary px-3 py-1 rounded-full text-sm">嵌入式开发</span>
+              <span class="bg-primary/10 text-primary px-3 py-1 rounded-full text-sm">算法</span>
+              <span class="bg-primary/10 text-primary px-3 py-1 rounded-full text-sm">数据结构</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
+        <div class="bg-white rounded-xl shadow-md p-6 card-hover">
+          <div class="text-primary text-3xl mb-4">
+            <i class="fa fa-code"></i>
+          </div>
+          <h3 class="text-xl font-bold text-dark mb-2">100+</h3>
+          <p class="text-gray-600">C语言教程和文章</p>
+        </div>
+        <div class="bg-white rounded-xl shadow-md p-6 card-hover">
+          <div class="text-primary text-3xl mb-4">
+            <i class="fa fa-users"></i>
+          </div>
+          <h3 class="text-xl font-bold text-dark mb-2">10K+</h3>
+          <p class="text-gray-600">月活跃读者</p>
+        </div>
+        <div class="bg-white rounded-xl shadow-md p-6 card-hover">
+          <div class="text-primary text-3xl mb-4">
+            <i class="fa fa-coffee"></i>
+          </div>
+          <h3 class="text-xl font-bold text-dark mb-2">5年+</h3>
+          <p class="text-gray-600">博客运营经验</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- C语言基础 -->
+  <section id="basics" class="py-16 bg-gray-50">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-12">
+        <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold text-dark">C语言基础</h2>
+        <p class="text-gray-600 mt-4 max-w-2xl mx-auto">
+          掌握C语言的核心概念和基础知识，为进一步学习打下坚实基础
+        </p>
+        <div class="w-20 h-1 bg-primary mx-auto mt-4"></div>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <!-- 基础概念卡片 -->
+        <div class="bg-white rounded-xl shadow-md overflow-hidden card-hover">
+          <div class="h-48 bg-primary/10 flex items-center justify-center">
+            <i class="fa fa-file-code-o text-6xl text-primary"></i>
+          </div>
+          <div class="p-6">
+            <h3 class="text-xl font-bold text-dark">基本语法</h3>
+            <p class="text-gray-600 mt-2">
+              学习C语言的基本语法结构，包括变量、数据类型、运算符和控制流语句。
+            </p>
+            <div class="mt-4">
+              <a href="#" class="text-primary hover:text-primary/80 font-medium inline-flex items-center">
+                阅读教程 <i class="fa fa-arrow-right ml-2"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 函数卡片 -->
+        <div class="bg-white rounded-xl shadow-md overflow-hidden card-hover">
+          <div class="h-48 bg-primary/10 flex items-center justify-center">
+            <i class="fa fa-cubes text-6xl text-primary"></i>
+          </div>
+          <div class="p-6">
+            <h3 class="text-xl font-bold text-dark">函数与模块化</h3>
+            <p class="text-gray-600 mt-2">
+              了解如何定义和调用函数，以及如何将程序组织成可复用的模块。
+            </p>
+            <div class="mt-4">
+              <a href="#" class="text-primary hover:text-primary/80 font-medium inline-flex items-center">
+                阅读教程 <i class="fa fa-arrow-right ml-2"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 指针卡片 -->
+        <div class="bg-white rounded-xl shadow-md overflow-hidden card-hover">
+          <div class="h-48 bg-primary/10 flex items-center justify-center">
+            <i class="fa fa-hand-pointer-o text-6xl text-primary"></i>
+          </div>
+          <div class="p-6">
+            <h3 class="text-xl font-bold text-dark">指针与内存</h3>
+            <p class="text-gray-600 mt-2">
+              深入理解指针的概念和用法，掌握内存管理的核心技巧。
+            </p>
+            <div class="mt-4">
+              <a href="#" class="text-primary hover:text-primary/80 font-medium inline-flex items-center">
+                阅读教程 <i class="fa fa-arrow-right ml-2"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 数组卡片 -->
+        <div class="bg-white rounded-xl shadow-md overflow-hidden card-hover">
+          <div class="h-48 bg-primary/10 flex items-center justify-center">
+            <i class="fa fa-list-ol text-6xl text-primary"></i>
+          </div>
+          <div class="p-6">
+            <h3 class="text-xl font-bold text-dark">数组与字符串</h3>
+            <p class="text-gray-600 mt-2">
+              学习如何使用数组存储和处理数据，以及如何操作C语言中的字符串。
+            </p>
+            <div class="mt-4">
+              <a href="#" class="text-primary hover:text-primary/80 font-medium inline-flex items-center">
+                阅读教程 <i class="fa fa-arrow-right ml-2"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 结构体卡片 -->
+        <div class="bg-white rounded-xl shadow-md overflow-hidden card-hover">
+          <div class="h-48 bg-primary/10 flex items-center justify-center">
+            <i class="fa fa-th-large text-6xl text-primary"></i>
+          </div>
+          <div class="p-6">
+            <h3 class="text-xl font-bold text-dark">结构体与联合体</h3>
+            <p class="text-gray-600 mt-2">
+              了解如何使用结构体组织复杂数据类型，以及联合体的特殊用途。
+            </p>
+            <div class="mt-4">
+              <a href="#" class="text-primary hover:text-primary/80 font-medium inline-flex items-center">
+                阅读教程 <i class="fa fa-arrow-right ml-2"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 文件操作卡片 -->
+        <div class="bg-white rounded-xl shadow-md overflow-hidden card-hover">
+          <div class="h-48 bg-primary/10 flex items-center justify-center">
+            <i class="fa fa-file-text-o text-6xl text-primary"></i>
+          </div>
+          <div class="p-6">
+            <h3 class="text-xl font-bold text-dark">文件操作</h3>
+            <p class="text-gray-600 mt-2">
+              学习如何在C语言中进行文件的读写操作，掌握文件处理的基本技巧。
+            </p>
+            <div class="mt-4">
+              <a href="#" class="text-primary hover:text-primary/80 font-medium inline-flex items-center">
+                阅读教程 <i class="fa fa-arrow-right ml-2"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 学习路线图 -->
+      <div class="mt-16 bg-white rounded-xl shadow-lg p-8">
+        <h3 class="text-2xl font-bold text-dark mb-6 text-center">C语言学习路线图</h3>
+        <div class="relative">
+          <!-- 连接线 -->
+          <div class="absolute left-0 md:left-1/2 top-0 bottom-0 w-1 bg-primary/20 transform md:-translate-x-1/2"></div>
+          
+          <!-- 步骤1 -->
+          <div class="relative z-10 mb-8">
+            <div class="flex flex-col md:flex-row items-center">
+              <div class="md:w-1/2 md:pr-12 md:text-right mb-6 md:mb-0">
+                <div class="bg-white p-4 rounded-lg shadow-md inline-block">
+                  <h4 class="text-lg font-bold text-dark">1. 环境搭建</h4>
+                  <p class="text-gray-600 mt-2">安装C编译器和开发环境，了解基本的编译流程。</p>
+                </div>
+              </div>
+              <div class="bg-primary text-white w-10 h-10 rounded-full flex items-center justify-center shadow-lg transform md:-translate-x-1/2">
+                <i class="fa fa-code"></i>
+              </div>
+              <div class="md:w-1/2 md:pl-12 hidden md:block"></div>
+            </div>
+          </div>
+          
+          <!-- 步骤2 -->
+          <div class="relative z-10 mb-8">
+            <div class="flex flex-col md:flex-row items-center">
+              <div class="md:w-1/2 md:pr-12 hidden md:block"></div>
+              <div class="bg-primary text-white w-10 h-10 rounded-full flex items-center justify-center shadow-lg transform md:-translate-x-1/2">
+                <i class="fa fa-book"></i>
+              </div>
+              <div class="md:w-1/2 md:pl-12 mb-6 md:mb-0">
+                <div class="bg-white p-4 rounded-lg shadow-md inline-block">
+                  <h4 class="text-lg font-bold text-dark">2. 基础语法</h4>
+                  <p class="text-gray-600 mt-2">学习变量、数据类型、运算符、控制结构和函数。</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- 步骤3 -->
+          <div class="relative z-10 mb-8">
+            <div class="flex flex-col md:flex-row items-center">
+              <div class="md:w-1/2 md:pr-12 md:text-right mb-6 md:mb-0">
+                <div class="bg-white p-4 rounded-lg shadow-md inline-block">
+                  <h4 class="text-lg font-bold text-dark">3. 数据结构</h4>
+                  <p class="text-gray-600 mt-2">掌握数组、字符串、结构体和指针的使用。</p>
+                </div>
+              </div>
+              <div class="bg-primary text-white w-10 h-10 rounded-full flex items-center justify-center shadow-lg transform md:-translate-x-1/2">
+                <i class="fa fa-database"></i>
+              </div>
+              <div class="md:w-1/2 md:pl-12 hidden md:block"></div>
+            </div>
+          </div>
+          
+          <!-- 步骤4 -->
+          <div class="relative z-10">
+            <div class="flex flex-col md:flex-row items-center">
+              <div class="md:w-1/2 md:pr-12 hidden md:block"></div>
+              <div class="bg-primary text-white w-10 h-10 rounded-full flex items-center justify-center shadow-lg transform md:-translate-x-1/2">
+                <i class="fa fa-cogs"></i>
+              </div>
+              <div class="md:w-1/2 md:pl-12">
+                <div class="bg-white p-4 rounded-lg shadow-md inline-block">
+                  <h4 class="text-lg font-bold text-dark">4. 高级主题</h4>
+                  <p class="text-gray-600 mt-2">学习文件操作、动态内存分配、预处理指令和多文件项目。</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 代码示例 -->
+  <section id="examples" class="py-16 bg-white">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-12">
+        <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold text-dark">C语言代码示例</h2>
+        <p class="text-gray-600 mt-4 max-w-2xl mx-auto">
+          通过实际代码示例学习C语言的核心概念和编程技巧
+        </p>
+        <div class="w-20 h-1 bg-primary mx-auto mt-4"></div>
+      </div>
+      
+      <!-- 代码选项卡 -->
+      <div class="mb-8">
+        <div class="flex flex-wrap gap-2 justify-center">
+          <button class="example-tab active px-4 py-2 rounded-md bg-primary text-white" data-tab="hello-world">
+            Hello World
+          </button>
+          <button class="example-tab px-4 py-2 rounded-md bg-gray-200 text-dark hover:bg-gray-300" data-tab="fibonacci">
+            斐波那契数列
+          </button>
+          <button class="example-tab px-4 py-2 rounded-md bg-gray-200 text-dark hover:bg-gray-300" data-tab="sorting">
+            排序算法
+          </button>
+          <button class="example-tab px-4 py-2 rounded-md bg-gray-200 text-dark hover:bg-gray-300" data-tab="pointers">
+            指针示例
+          </button>
+          <button class="example-tab px-4 py-2 rounded-md bg-gray-200 text-dark hover:bg-gray-300" data-tab="file-io">
+            文件操作
+          </button>
+        </div>
+      </div>
+      
+      <!-- 代码展示区域 -->
+      <div class="example-content" id="hello-world-content">
+        <div class="bg-code rounded-xl overflow-hidden shadow-lg">
+          <div class="bg-code/80 p-4 flex items-center justify-between">
+            <div class="flex space-x-2">
+              <div class="w-3 h-3 rounded-full bg-red-500"></div>
+              <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+              <div class="w-3 h-3 rounded-full bg-green-500"></div>
+            </div>
+            <div class="text-gray-300 text-sm">hello_world.c</div>
+            <button class="text-gray-300 hover:text-white">
+              <i class="fa fa-copy"></i>
+            </button>
+          </div>
+          <div class="p-6 overflow-x-auto">
+            <pre class="text-gray-200 font-mono text-sm"><code>#include &lt;stdio.h&gt;
+
+int main() {
+    // 这是C语言的第一个程序
+    printf("Hello, World!\n");
+    
+    // 输出变量的值
+    int number = 42;
+    printf("The answer is %d\n", number);
+    
+    // 输出带有格式的文本
+    float pi = 3.14159;
+    printf("Pi is approximately %.2f\n", pi);
+    
+    return 0;
+}</code></pre>
+          </div>
+        </div>
+        
+        <div class="mt-8 bg-white p-6 rounded-xl shadow-md">
+          <h3 class="text-xl font-bold text-dark mb-4">代码解释</h3>
+          <p class="text-gray-600">
+            这是一个经典的C语言程序，展示了基本的程序结构和输出功能。
+          </p>
+          <ul class="mt-4 space-y-2 list-disc list-inside text-gray-600">
+            <li><code>#include &lt;stdio.h&gt;</code> - 引入标准输入输出库</li>
+            <li><code>int main()</code> - 程序的入口点</li>
+            <li><code>printf()</code> - 用于输出文本到控制台</li>
+            <li><code>return 0;</code> - 程序正常结束，返回状态码0</li>
+          </ul>
+        </div>
+      </div>
+      
+      <div class="example-content hidden" id="fibonacci-content">
+        <div class="bg-code rounded-xl overflow-hidden shadow-lg">
+          <div class="bg-code/80 p-4 flex items-center justify-between">
+            <div class="flex space-x-2">
+              <div class="w-3 h-3 rounded-full bg-red-500"></div>
+              <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+              <div class="w-3 h-3 rounded-full bg-green-500"></div>
+            </div>
+            <div class="text-gray-300 text-sm">fibonacci.c</div>
+            <button class="text-gray-300 hover:text-white">
+              <i class="fa fa-copy"></i>
+            </button>
+          </div>
+          <div class="p-6 overflow-x-auto">
+            <pre class="text-gray-200 font-mono text-sm"><code>#include &lt;stdio.h&gt;
+
+// 递归方法计算斐波那契数列
+int fibonacci_recursive(int n) {
+    if (n <= 1)
+        return n;
+    else
+        return fibonacci_recursive(n-1) + fibonacci_recursive(n-2);
+}
+
+// 迭代方法计算斐波那契数列
+int fibonacci_iterative(int n) {
+    int a = 0, b = 1, c;
+    if (n == 0)
+        return a;
+    for (int i = 2; i <= n; i++) {
+        c = a + b;
+        a = b;
+        b = c;
+    }
+    return b;
+}
+
+int main() {
+    int n = 10;
+    
+    printf("斐波那契数列的第 %d 项（递归方法）: %d\n", n, fibonacci_recursive(n));
+    printf("斐波那契数列的第 %d 项（迭代方法）: %d\n", n, fibonacci_iterative(n));
+    
+    // 打印斐波那契数列前n项
+    printf("斐波那契数列前 %d 项: ", n);
+    for (int i = 0; i < n; i++) {
+        printf("%d ", fibonacci_iterative(i));
+    }
+    printf("\n");
+    
+    return 0;
+}</code></pre>
+          </div>
+        </div>
+        
+        <div class="mt-8 bg-white p-6 rounded-xl shadow-md">
+          <h3 class="text-xl font-bold text-dark mb-4">代码解释</h3>
+          <p class="text-gray-600">
+            这个程序展示了两种计算斐波那契数列的方法：递归和迭代。
+          </p>
+          <ul class="mt-4 space-y-2 list-disc list-inside text-gray-600">
+            <li><code>fibonacci_recursive()</code> - 使用递归方法计算斐波那契数列</li>
+            <li><code>fibonacci_iterative()</code> - 使用迭代方法计算斐波那契数列</li>
+            <li>递归方法简洁但效率较低，迭代方法效率更高</li>
+            <li>斐波那契数列：0, 1, 1, 2, 3, 5, 8, 13, ...</li>
+          </ul>
+        </div>
+      </div>
+      
+      <div class="example-content hidden" id="sorting-content">
+        <div class="bg-code rounded-xl overflow-hidden shadow-lg">
+          <div class="bg-code/80 p-4 flex items-center justify-between">
+            <div class="flex space-x-2">
+              <div class="w-3 h-3 rounded-full bg-red-500"></div>
+              <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+              <div class="w-3 h-3 rounded-full bg-green-500"></div>
+            </div>
+            <div class="text-gray-300 text-sm">sorting.c</div>
+            <button class="text-gray-300 hover:text-white">
+              <i class="fa fa-copy"></i>
+            </button>
+          </div>
+          <div class="p-6 overflow-x-auto">
+            <pre class="text-gray-200 font-mono text-sm"><code>#include &lt;stdio.h&gt;
+
+// 交换两个整数的值
+void swap(int *a, int *b) {
+    int temp = *a;
+    *a = *b;
+    *b = temp;
+}
+
+// 冒泡排序
+void bubble_sort(int arr[], int n) {
+    for (int i = 0; i < n-1; i++) {
+        for (int j = 0; j < n-i-1; j++) {
+            if (arr[j] > arr[j+1]) {
+                swap(&arr[j], &arr[j+1]);
+            }
+        }
+    }
+}
+
+// 选择排序
+void selection_sort(int arr[], int n) {
+    for (int i = 0; i < n-1; i++) {
+        int min_idx = i;
+        for (int j = i+1; j < n; j++) {
+            if (arr[j] < arr[min_idx]) {
+                min_idx = j;
+            }
+        }
+        if (min_idx != i) {
+            swap(&arr[min_idx], &arr[i]);
+        }
+    }
+}
+
+// 打印数组
+void print_array(int arr[], int n) {
+    for (int i = 0; i < n; i++) {
+        printf("%d ", arr[i]);
+    }
+    printf("\n");
+}
+
+int main() {
+    int arr[] = {64, 34, 25, 12, 22, 11, 90};
+    int n = sizeof(arr)/sizeof(arr[0]);
+    
+    printf("原始数组: ");
+    print_array(arr, n);
+    
+    // 使用冒泡排序
+    int arr1[n];
+    for (int i = 0; i < n; i++) {
+        arr1[i] = arr[i];
+    }
+    bubble_sort(arr1, n);
+    printf("冒泡排序后的数组: ");
+    print_array(arr1, n);
+    
+    // 使用选择排序
+    int arr2[n];
+    for (int i = 0; i < n; i++) {
+        arr2[i] = arr[i];
+    }
+    selection_sort(arr2, n);
+    printf("选择排序后的数组: ");
+    print_array(arr2, n);
+    
+    return 0;
+}</code></pre>
+          </div>
+        </div>
+        
+        <div class="mt-8 bg-white p-6 rounded-xl shadow-md">
+          <h3 class="text-xl font-bold text-dark mb-4">代码解释</h3>
+          <p class="text-gray-600">
+            这个程序展示了两种基本的排序算法：冒泡排序和选择排序。
+          </p>
+          <ul class="mt-4 space-y-2 list-disc list-inside text-gray-600">
+            <li><code>bubble_sort()</code> - 比较相邻元素并交换，重复此过程直到整个数组有序</li>
+            <li><code>selection_sort()</code> - 每次从未排序部分选择最小元素，放到已排序部分的末尾</li>
+            <li><code>swap()</code> - 使用指针交换两个变量的值</li>
+            <li>两种排序算法的时间复杂度都是O(n²)</li>
+          </ul>
+        </div>
+      </div>
+      
+      <div class="example-content hidden" id="pointers-content">
+        <div class="bg-code rounded-xl overflow-hidden shadow-lg">
+          <div class="bg-code/80 p-4 flex items-center justify-between">
+            <div class="flex space-x-2">
+              <div class="w-3 h-3 rounded-full bg-red-500"></div>
+              <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+              <div class="w-3 h-3 rounded-full bg-green-500"></div>
+            </div>
+            <div class="text-gray-300 text-sm">pointers.c</div>
+            <button class="text-gray-300 hover:text-white">
+              <i class="fa fa-copy"></i>
+            </button>
+          </div>
+          <div class="p-6 overflow-x-auto">
+            <pre class="text-gray-200 font-mono text-sm"><code>#include &lt;stdio.h&gt;
+
+int main() {
+    int num = 42;
+    int *ptr;  // 声明一个整型指针
+    
+    // 指针赋值
+    ptr = &num;  // ptr 指向 num 的地址
+    
+    printf("num 的值: %d\n", num);
+    printf("num 的地址: %p\n", &num);
+    printf("ptr 的值(存储的地址): %p\n", ptr);
+    printf("ptr 指向的值: %d\n", *ptr);  // 解引用
+    
+    // 通过指针修改值
+    *ptr = 100;
+    printf("修改后 num 的值: %d\n", num);
+    
+    // 指针算术
+    int arr[] = {10, 20, 30, 40, 50};
+    int *arr_ptr = arr;  // 数组名是数组首元素的地址
+    
+    printf("\n数组元素通过指针访问:\n");
+    for (int i = 0; i < 5; i++) {
+        printf("arr[%d] = %d (地址: %p)\n", i, *(arr_ptr + i), arr_ptr + i);
+    }
+    
+    // 指针和数组的关系
+    printf("\n指针和数组的关系:\n");
+    printf("arr[2] = %d\n", arr[2]);
+    printf("*(arr + 2) = %d\n", *(arr + 2));
+    printf("2[arr] = %d\n", 2[arr]);  // 等价于 *(2 + arr)
+    
+    return 0;
+}</code></pre>
+          </div>
+        </div>
+        
+        <div class="mt-8 bg-white p-6 rounded-xl shadow-md">
+          <h3 class="text-xl font-bold text-dark mb-4">代码解释</h3>
+          <p class="text-gray-600">
+            这个程序展示了C语言中指针的基本概念和用法。
+          </p>
+          <ul class="mt-4 space-y-2 list-disc list-inside text-gray-600">
+            <li><code>&</code> - 取地址运算符</li>
+            <li><code>*</code> - 解引用运算符</li>
+            <li>指针算术：指针可以进行加减运算</li>
+            <li>数组名本质上是指向数组首元素的常量指针</li>
+            <li>指针和数组访问的等价性：<code>arr[i]</code> 等价于 <code>*(arr + i)</code></li>
+          </ul>
+        </div>
+      </div>
+      
+      <div class="example-content hidden" id="file-io-content">
+        <div class="bg-code rounded-xl overflow-hidden shadow-lg">
+          <div class="bg-code/80 p-4 flex items-center justify-between">
+            <div class="flex space-x-2">
+              <div class="w-3 h-3 rounded-full bg-red-500"></div>
+              <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+              <div class="w-3 h-3 rounded-full bg-green-500"></div>
+            </div>
+            <div class="text-gray-300 text-sm">file_io.c</div>
+            <button class="text-gray-300 hover:text-white">
+              <i class="fa fa-copy"></i>
+            </button>
+          </div>
+          <div class="p-6 overflow-x-auto">
+            <pre class="text-gray-200 font-mono text-sm"><code>#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+
+#define MAX_LENGTH 100
+
+int main() {
+    FILE *fp;
+    char filename[50];
+    char content[MAX_LENGTH];
+    
+    // 获取文件名
+    printf("请输入文件名: ");
+    scanf("%s", filename);
+    
+    // 写入文件
+    fp = fopen(filename, "w");
+    if (fp == NULL) {
+        printf("无法打开文件！\n");
+        return 1;
+    }
+    
+    printf("请输入要写入的内容 (输入 'EOF' 结束):\n");
+    while (1) {
+        fgets(content, MAX_LENGTH, stdin);
+        
+        // 忽略第一次读取的空行
+        if (content[0] == '\n') {
+            continue;
+        }
+        
+        // 检查是否输入EOF
+        if (content[0] == 'E' && content[1] == 'O' && content[2] == 'F') {
+            break;
+        }
+        
+        fputs(content, fp);
+    }
+    
+    fclose(fp);
+    printf("文件写入成功！\n");
+    
+    // 读取文件
+    fp = fopen(filename, "r");
+    if (fp == NULL) {
+        printf("无法打开文件！\n");
+        return 1;
+    }
+    
+    printf("\n文件内容如下:\n");
+    while (fgets(content, MAX_LENGTH, fp) != NULL) {
+        printf("%s", content);
+    }
+    
+    fclose(fp);
+    
+    // 追加内容
+    fp = fopen(filename, "a");
+    if (fp == NULL) {
+        printf("无法打开文件！\n");
+        return 1;
+    }
+    
+    fprintf(fp, "\n\n这是追加的内容！");
+    fclose(fp);
+    
+    printf("\n内容追加成功！\n");
+    
+    return 0;
+}</code></pre>
+          </div>
+        </div>
+        
+        <div class="mt-8 bg-white p-6 rounded-xl shadow-md">
+          <h3 class="text-xl font-bold text-dark mb-4">代码解释</h3>
+          <p class="text-gray-600">
+            这个程序展示了C语言中基本的文件操作：写入、读取和追加。
+          </p>
+          <ul class="mt-4 space-y-2 list-disc list-inside text-gray-600">
+            <li><code>fopen()</code> - 打开文件，使用不同模式（"w"、"r"、"a"）</li>
+            <li><code>fgets()</code> - 从文件读取一行</li>
+            <li><code>fputs()</code> - 写入字符串到文件</li>
+            <li><code>fprintf()</code> - 格式化输出到文件</li>
+            <li><code>fclose()</code> - 关闭文件</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 学习资源 -->
+  <section id="resources" class="py-16 bg-gray-50">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-12">
+        <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold text-dark">学习资源</h2>
+        <p class="text-gray-600 mt-4 max-w-2xl mx-auto">
+          精选C语言学习资源，帮助你从入门到精通
+        </p>
+        <div class="w-20 h-1 bg-primary mx-auto mt-4"></div>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <!-- 书籍卡片 -->
+        <div class="bg-white rounded-xl shadow-md overflow-hidden card-hover">
+          <div class="h-48 bg-primary/5 flex items-center justify-center">
+            <i class="fa fa-book text-6xl text-primary"></i>
+          </div>
+          <div class="p-6">
+            <h3 class="text-xl font-bold text-dark">推荐书籍</h3>
+            <p class="text-gray-600 mt-2">
+              经典C语言教材和进阶读物，适合不同学习阶段的开发者。
+            </p>
+            <ul class="mt-4 space-y-2">
+              <li class="flex items-start">
+                <i class="fa fa-check-circle text-green-500 mt-1 mr-2"></i>
+                <span>《C Primer Plus》- 适合初学者</span>
+              </li>
+              <li class="flex items-start">
+                <i class="fa fa-check-circle text-green-500 mt-1 mr-2"></i>
+                <span>《C Programming: A Modern Approach》- 深入理解C语言</span>
+              </li>
+              <li class="flex items-start">
+                <i class="fa fa-check-circle text-green-500 mt-1 mr-2"></i>
+                <span>《The C Programming Language》- 经典入门书(K&R C)</span>
+              </li>
+              <li class="flex items-start">
+                <i class="fa fa-check-circle text-green-500 mt-1 mr-2"></i>
+                <span>《C Traps and Pitfalls》- 避免常见陷阱</span>
+              </li>
+            </ul>
+            <div class="mt-4">
+              <a href="#" class="text-primary hover:text-primary/80 font-medium inline-flex items-center">
+                查看更多 <i class="fa fa-arrow-right ml-2"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 在线课程卡片 -->
+        <div class="bg-white rounded-xl shadow-md overflow-hidden card-hover">
+          <div class="h-48 bg-primary/5 flex items-center justify-center">
+            <i class="fa fa-graduation-cap text-6xl text-primary"></i>
+          </div>
+          <div class="p-6">
+            <h3 class="text-xl font-bold text-dark">在线课程</h3>
+            <p class="text-gray-600 mt-2">
+              精选优质C语言在线课程，视频教学让学习更轻松。
+            </p>
+            <ul class="mt-4 space-y-2">
+              <li class="flex items-start">
+                <i class="fa fa-check-circle text-green-500 mt-1 mr-2"></i>
+                <span>C语言入门到精通 - Coursera</span>
+              </li>
+              <li class="flex items-start">
+                <i class="fa fa-check-circle text-green-500 mt-1 mr-2"></i>
+                <span>Advanced C Programming - Udemy</span>
+              </li>
+              <li class="flex items-start">
+                <i class="fa fa-check-circle text-green-500 mt-1 mr-2"></i>
+                <span>数据结构与算法（C语言实现）- edX</span>
+              </li>
+              <li class="flex items-start">
+                <i class="fa fa-check-circle text-green-500 mt-1 mr-2"></i>
+                <span>C语言程序设计 - 中国大学MOOC</span>
+              </li>
+            </ul>
+            <div class="mt-4">
+              <a href="#" class="text-primary hover:text-primary/80 font-medium inline-flex items-center">
+                查看更多 <i class="fa fa-arrow-right ml-2"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 网站和社区卡片 -->
+        <div class="bg-white rounded-xl shadow-md overflow-hidden card-hover">
+          <div class="h-48 bg-primary/5 flex items-center justify-center">
+            <i class="fa fa-globe text-6xl text-primary"></i>
+          </div>
+          <div class="p-6">
+            <h3 class="text-xl font-bold text-dark">网站和社区</h3>
+            <p class="text-gray-600 mt-2">
+              优质C语言学习网站和活跃社区，与其他开发者交流学习。
+            </p>
+            <ul class="mt-4 space-y-2">
+              <li class="flex items-start">
+                <i class="fa fa-check-circle text-green-500 mt-1 mr-2"></i>
+                <span>GeeksforGeeks - C语言教程和练习题</span>
+              </li>
+              <li class="flex items-start">
+                <i class="fa fa-check-circle text-green-500 mt-1 mr-2"></i>
+                <span>Stack Overflow - 编程问题解答社区</span>
+              </li>
+              <li class="flex items-start">
+                <i class="fa fa-check-circle text-green-500 mt-1 mr-2"></i>
+                <span>CProgramming.com - C语言资源和论坛</span>
+              </li>
+              <li class="flex items-start">
+                <i class="fa fa-check-circle text-green-500 mt-1 mr-2"></i>
+                <span>GitHub - 开源C语言项目和代码库</span>
+              </li>
+            </ul>
+            <div class="mt-4">
+              <a href="#" class="text-primary hover:text-primary/80 font-medium inline-flex items-center">
+                查看更多 <i class="fa fa-arrow-right ml-2"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 学习进度图表 -->
+      <div class="mt-16 bg-white rounded-xl shadow-lg p-8">
+        <h3 class="text-2xl font-bold text-dark mb-6 text-center">C语言学习进度跟踪</h3>
+        <div class="h-80">
+          <canvas id="learningChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 订阅区域 -->
+  <section class="py-16 bg-primary">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="max-w-3xl mx-auto text-center">
+        <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold text-white">订阅我的C语言教程</h2>
+        <p class="text-white/80 mt-4">
+          获取最新的C语言教程、代码示例和编程技巧，每周更新，直接发送到您的邮箱。
+        </p>
+        
+        <form class="mt-8 flex flex-col sm:flex-row gap-4 max-w-xl mx-auto">
+          <input type="email" placeholder="输入您的邮箱地址" class="flex-1 px-4 py-3 rounded-md focus:outline-none focus:ring-2 focus:ring-white/50">
+          <button type="submit" class="bg-white text-primary hover:bg-gray-100 px-6 py-3 rounded-md font-medium transition-colors">
+            立即订阅
+          </button>
+        </form>
+        
+        <p class="text-white/60 text-sm mt-4">
+          我们尊重您的隐私，绝不会分享您的邮箱地址。您可以随时取消订阅。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 页脚 -->
+  <footer class="bg-dark text-white/80 py-12">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div>
+          <div class="flex items-center">
+            <i class="fa fa-code text-primary text-2xl mr-2"></i>
+            <span class="text-xl font-bold text-white">C语言探索者</span>
+          </div>
+          <p class="mt-4">
+            从入门到精通，探索C语言的奇妙世界。
+          </p>
+          <div class="mt-6 flex space-x-4">
+            <a href="https://github.com" target="_blank" class="text-white/80 hover:text-primary transition-colors">
+              <i class="fa fa-github text-xl"></i>
+            </a>
+            <a href="https://twitter.com" target="_blank" class="text-white/80 hover:text-primary transition-colors">
+              <i class="fa fa-twitter text-xl"></i>
+            </a>
+            <a href="https://linkedin.com" target="_blank" class="text-white/80 hover:text-primary transition-colors">
+              <i class="fa fa-linkedin text-xl"></i>
+            </a>
+            <a href="https://youtube.com" target="_blank" class="text-white/80 hover:text-primary transition-colors">
+              <i class="fa fa-youtube-play text-xl"></i>
+            </a>
+          </div>
+        </div>
+        
+        <div>
+          <h3 class="text-lg font-bold text-white mb-4">博客分类</h3>
+          <ul class="space-y-2">
+            <li><a href="#" class="hover:text-primary transition-colors">C语言基础</a></li>
+            <li><a href="#" class="hover:text-primary transition-colors">高级编程</a></li>
+            <li><a href="#" class="hover:text-primary transition-colors">数据结构与算法</a></li>
+            <li><a href="#" class="hover:text-primary transition-colors">嵌入式系统</a></li>
+            <li><a href="#" class="hover:text-primary transition-colors">开源项目</a></li>
+          </ul>
+        </div>
+        
+        <div>
+          <h3 class="text-lg font-bold text-white mb-4">快速链接</h3>
+          <ul class="space-y-2">
+            <li><a href="#home" class="hover:text-primary transition-colors">首页</a></li>
+            <li><a href="#about" class="hover:text-primary transition-colors">关于我</a></li>
+            <li><a href="#basics" class="hover:text-primary transition-colors">C语言基础</a></li>
+            <li><a href="#examples" class="hover:text-primary transition-colors">代码示例</a></li>
+            <li><a href="#resources" class="hover:text-primary transition-colors">学习资源</a></li>
+          </ul>
+        </div>
+        
+        <div>
+          <h3 class="text-lg font-bold text-white mb-4">联系我</h3>
+          <ul class="space-y-2">
+            <li class="flex items-start">
+              <i class="fa fa-envelope text-primary mt-1 mr-2"></i>
+              <span>explorer@c-lang.com</span>
+            </li>
+            <li class="flex items-start">
+              <i class="fa fa-map-marker text-primary mt-1 mr-2"></i>
+              <span>北京市海淀区中关村</span>
+            </li>
+            <li class="flex items-start">
+              <i class="fa fa-weixin text-primary mt-1 mr-2"></i>
+              <span>c-lang-explorer</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+      
+      <div class="border-t border-gray-800 mt-12 pt-8 text-center">
+        <p>&copy; 2025 C语言探索者. 保留所有权利.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- JavaScript -->
+  <script>
+    // 导航栏滚动效果
+    window.addEventListener('scroll', function() {
+      const navbar = document.getElementById('navbar');
+      if (window.scrollY > 50) {
+        navbar.classList.add('shadow-md');
+        navbar.classList.remove('bg-white/90');
+        navbar.classList.add('bg-white');
+      } else {
+        navbar.classList.remove('shadow-md');
+        navbar.classList.add('bg-white/90');
+        navbar.classList.remove('bg-white');
+      }
+    });
+    
+    // 移动端菜单切换
+    document.getElementById('menu-toggle').addEventListener('click', function() {
+      const mobileMenu = document.getElementById('mobile-menu');
+      mobileMenu.classList.toggle('hidden');
+    });
+    
+    // 代码示例选项卡切换
+    const exampleTabs = document.querySelectorAll('.example-tab');
+    exampleTabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        // 移除所有选项卡的活动状态
+        exampleTabs.forEach(t => {
+          t.classList.remove('active', 'bg-primary', 'text-white');
+          t.classList.add('bg-gray-200', 'text-dark', 'hover:bg-gray-300');
+        });
+        
+        // 添加当前选项卡的活动状态
+        tab.classList.add('active', 'bg-primary', 'text-white');
+        tab.classList.remove('bg-gray-200', 'text-dark', 'hover:bg-gray-300');
+        
+        // 隐藏所有内容
+        document.querySelectorAll('.example-content').forEach(content => {
+          content.classList.add('hidden');
+        });
+        
+        // 显示当前内容
+        const tabId = tab.getAttribute('data-tab');
+        document.getElementById(`${tabId}-content`).classList.remove('hidden');
+      });
+    });
+    
+    // 平滑滚动
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        
+        const targetId = this.getAttribute('href');
+        const targetElement = document.querySelector(targetId);
+        
+        if (targetElement) {
+          window.scrollTo({
+            top: targetElement.offsetTop - 80,
+            behavior: 'smooth'
+          });
+          
+          // 关闭移动端菜单
+          document.getElementById('mobile-menu').classList.add('hidden');
+        }
+      });
+    });
+    
+    // 学习进度图表
+    window.addEventListener('load', function() {
+      const ctx = document.getElementById('learningChart').getContext('2d');
+      const learningChart = new Chart(ctx, {
+        type: 'radar',
+        data: {
+          labels: ['基础语法', '数据结构', '指针', '函数', '文件操作', '内存管理', '算法'],
+          datasets: [{
+            label: '学习进度',
+            data: [85, 70, 65, 75, 60, 50, 40],
+            backgroundColor: 'rgba(22, 93, 255, 0.2)',
+            borderColor: 'rgba(22, 93, 255, 1)',
+            pointBackgroundColor: 'rgba(22, 93, 255, 1)',
+            pointBorderColor: '#fff',
+            pointHoverBackgroundColor: '#fff',
+            pointHoverBorderColor: 'rgba(22, 93, 255, 1)'
+          }]
+        },
+        options: {
+          scales: {
+            r: {
+              beginAtZero: true,
+              max: 100,
+              ticks: {
+                stepSize: 20
+              }
+            }
+          }
+        }
+      });
+    });
+  </script>
+</body>
+</html>
+    
